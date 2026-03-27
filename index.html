@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Tra cứu bài kiểm tra</title>
+
+<style>
+body {
+    font-family: Arial;
+    background: #f0f2f5;
+    text-align: center;
+    margin: 0;
+    padding: 20px;
+}
+
+.container {
+    background: white;
+    padding: 25px;
+    border-radius: 10px;
+    max-width: 900px;
+    margin: auto;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+h2 {
+    margin-bottom: 20px;
+}
+
+select, input {
+    padding: 10px;
+    margin: 5px;
+    font-size: 16px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+button {
+    padding: 10px 20px;
+    font-size: 16px;
+    background: #007BFF;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #0056b3;
+}
+
+iframe {
+    width: 80%;
+    height: 1000px;
+    margin-top: 20px;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+}
+
+#ten {
+    margin-top: 10px;
+    font-weight: bold;
+}
+</style>
+
+</head>
+<body>
+
+<div class="container">
+
+<h2>TRA CỨU BÀI KIỂM TRA</h2>
+
+<select id="khoi">
+  <option value="KHOI 10">Khối 10</option>
+  <option value="KHOI 11">Khối 11</option>
+  <option value="KHOI 12">Khối 12</option>
+</select>
+
+<select id="mon">
+  <option value="Toan">Toán</option>
+  <option value="Li">Lí</option>
+  <option value="Hoa">Hóa</option>
+  <option value="Sinh">Sinh</option>
+  <option value="Su">Sử</option>
+  <option value="DIA 10">Địa</option>
+</select>
+
+<br>
+
+<input type="text" id="sbd" placeholder="Nhập số báo danh">
+
+<button onclick="tim()">Xem bài</button>
+
+<p id="ten"></p>
+
+<iframe id="anh"></iframe>
+
+</div>
+
+<script>
+
+let data = [];
+
+// load dữ liệu JSON
+async function loadData() {
+    try {
+        let res = await fetch("data.json");
+        data = await res.json();
+        console.log("Đã load dữ liệu:", data);
+    } catch (e) {
+        alert("Không load được data.json");
+        console.error(e);
+    }
+}
+
+// tìm bài
+function tim() {
+    let khoi = document.getElementById("khoi").value;
+    let mon = document.getElementById("mon").value;
+    let sbd = document.getElementById("sbd").value.trim();
+
+    let hs = data.find(item =>
+        item.Khoi.trim() == khoi &&
+        item.Mon.trim().toLowerCase() == mon.toLowerCase() &&
+        String(item.SBD).trim() == sbd
+    );
+
+    if (hs) {
+        let link = hs.Link;
+
+        // lấy ID từ link Drive
+        let fileId = link.split("/d/")[1]?.split("/")[0];
+
+        if (!fileId) {
+            alert("Link ảnh sai!");
+            return;
+        }
+
+        // hiển thị bằng iframe (ổn định nhất)
+        document.getElementById("anh").src =
+            "https://drive.google.com/file/d/" + fileId + "/preview";
+
+        document.getElementById("ten").innerText =
+            hs.Ten ? "Học sinh: " + hs.Ten : "";
+
+    } else {
+        alert("Không tìm thấy bài!");
+        document.getElementById("anh").src = "";
+        document.getElementById("ten").innerText = "";
+    }
+}
+
+// chạy khi mở trang
+loadData();
+
+</script>
+
+</body>
+</html>
