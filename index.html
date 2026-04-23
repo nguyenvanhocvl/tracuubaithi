@@ -1,157 +1,104 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-<meta charset="UTF-8">
-<title>Tra cứu bài kiểm tra</title>
-
-<style>
-body {
-    font-family: Arial;
-    background: #f0f2f5;
-    text-align: center;
-    margin: 0;
-    padding: 20px;
-}
-
-.container {
-    background: white;
-    padding: 25px;
-    border-radius: 10px;
-    max-width: 900px;
-    margin: auto;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
-}
-
-h2 {
-    margin-bottom: 20px;
-}
-
-select, input {
-    padding: 10px;
-    margin: 5px;
-    font-size: 16px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-}
-
-button {
-    padding: 10px 20px;
-    font-size: 16px;
-    background: #007BFF;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-button:hover {
-    background: #0056b3;
-}
-
-iframe {
-    width: 80%;
-    height: 1000px;
-    margin-top: 20px;
-    border-radius: 10px;
-    border: 1px solid #ccc;
-}
-
-#ten {
-    margin-top: 10px;
-    font-weight: bold;
-}
-</style>
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XEM ẢNH BÀI KIỂM TRA CUỐI HK2</title>
+    <style>
+        body { font-family: sans-serif; background: #f0f2f5; display: flex; justify-content: center; padding: 20px; }
+        .card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 800px; text-align: center; }
+        h2 { color: #1a73e8; }
+        select, input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; box-sizing: border-box; }
+        button { width: 100%; padding: 15px; background: #1a73e8; color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; transition: 0.3s; }
+        button:hover { background: #1557b0; }
+        #imageContainer { margin-top: 20px; min-height: 200px; border: 2px dashed #eee; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 10px; }
+        img { max-width: 100%; border-radius: 10px; margin-top: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); display: none; }
+        .loading { display: none; color: #666; font-style: italic; }
+    </style>
 </head>
 <body>
 
-<div class="container">
+<div class="card">
+    <h2>XEM ẢNH BÀI KIỂM TRA CUỐI HK2</h2>
+    <p>Chọn môn và nhập SBD để xem ảnh</p>
+    
+    <select id="mon">
+        <option value="">-- Chọn môn học --</option>
+        <option value="Toan">Toán</option>
+        <option value="SU">Lịch Sử</option>
+        <option value="SINH">Sinh học</option>
+        <option value="HOA">Hóa học</option>
+        <option value="DIA">Địa lý</option>
+        <option value="GDKT">GD KT&PL</option>
+        <option value="CN">Công nghệ</option>
+        <option value="NN">Ngoại ngữ</option>
+        <option value="Tin">Tin học</option>
+        <option value="LI">Vật lý</option>
+    </select>
 
-<h2>TRA CỨU BÀI KIỂM TRA</h2>
+    <input type="text" id="sbd" placeholder="Nhập SBD">
+    
+    <button onclick="searchImage()">TÌM KIẾM</button>
 
-<select id="khoi">
-  <option value="KHOI 10">Khối 10</option>
-  <option value="KHOI 11">Khối 11</option>
-  <option value="KHOI 12">Khối 12</option>
-</select>
-
-<select id="mon">
-  <option value="TOAN 10">Toán</option>
-  <option value="LI 10">Lí</option>
-  <option value="HOA 10">Hóa</option>
-  <option value="SINH 10">Sinh</option>
-  <option value="SU 10">Sử</option>
-  <option value="DIA 10">Địa</option>
-</select>
-
-<br>
-
-<input type="text" id="sbd" placeholder="Nhập số báo danh">
-
-<button onclick="tim()">Xem bài</button>
-
-<p id="ten"></p>
-
-<iframe id="anh"></iframe>
-
+    <div id="imageContainer">
+        <p id="status">Chưa có dữ liệu</p>
+        <p class="loading" id="loader">Đang tải ảnh...</p>
+        <img id="resultImg" src="" alt="Ảnh sản phẩm">
+        <p id="fileName" style="font-weight: bold; margin-top: 10px;"></p>
+    </div>
 </div>
 
 <script>
+     const API_URL = "https://script.google.com/macros/s/AKfycbxy39ahfslxlN1uTUdBTx8jfJQnM39vvJnWsKIdHNmzj1eSbY8BNDmJqonnkHK3gUrn/exec";
 
-let data = [];
+    async function searchImage() {
+        const monVal = document.getElementById('mon').value;
+        const sbdVal = document.getElementById('sbd').value.trim();
+        const img = document.getElementById('resultImg');
+        const status = document.getElementById('status');
+        const loader = document.getElementById('loader');
+        const fileName = document.getElementById('fileName');
 
-// load dữ liệu JSON
-async function loadData() {
-    try {
-        let res = await fetch("data.json");
-        data = await res.json();
-        console.log("Đã load dữ liệu:", data);
-    } catch (e) {
-        alert("Không load được data.json");
-        console.error(e);
-    }
-}
-
-// tìm bài
-function tim() {
-    let khoi = document.getElementById("khoi").value;
-    let mon = document.getElementById("mon").value;
-    let sbd = document.getElementById("sbd").value.trim();
-
-    let hs = data.find(item =>
-        item.Khoi.trim() == khoi &&
-        item.Mon.trim().toLowerCase() == mon.toLowerCase() &&
-        String(item.SBD).trim() == sbd
-    );
-
-    if (hs) {
-        let link = hs.Link;
-
-        // lấy ID từ link Drive
-        let fileId = link.split("/d/")[1]?.split("/")[0];
-
-        if (!fileId) {
-            alert("Link ảnh sai!");
+        if (!monVal || !sbdVal) {
+            alert("Vui lòng nhập đầy đủ thông tin!");
             return;
         }
 
-        // hiển thị bằng iframe (ổn định nhất)
-        document.getElementById("anh").src =
-            "https://drive.google.com/file/d/" + fileId + "/preview";
+        // Reset trạng thái
+        img.style.display = "none";
+        fileName.innerText = "";
+        status.innerText = "";
+        loader.style.display = "block";
 
-        document.getElementById("ten").innerText =
-            hs.Ten ? "Học sinh: " + hs.Ten : "";
+        try {
+            const res = await fetch(API_URL);
+            const data = await res.json();
+            
+            const match = data.find(item => 
+                item["Môn"].toLowerCase() === monVal.toLowerCase() && 
+                item["SBD"].toString() === sbdVal
+            );
 
-    } else {
-        alert("Không tìm thấy bài!");
-        document.getElementById("anh").src = "";
-        document.getElementById("ten").innerText = "";
+            if (match) {
+                img.src = match["Link"]; // Link này giờ đã là link lh3 trực tiếp
+                img.onload = () => {
+                    loader.style.display = "none";
+                    img.style.display = "block";
+                    fileName.innerText = "Học sinh: " + match["Tên file"];
+                };
+                img.onerror = () => {
+                    loader.style.display = "none";
+                    status.innerText = "Lỗi hiển thị ảnh. Hãy kiểm tra quyền chia sẻ Drive.";
+                };
+            } else {
+                loader.style.display = "none";
+                status.innerText = "Không tìm thấy dữ liệu!";
+            }
+        } catch (e) {
+            loader.style.display = "none";
+            status.innerText = "Lỗi kết nối hệ thống!";
+        }
     }
-}
-
-// chạy khi mở trang
-loadData();
-
 </script>
 
 </body>
